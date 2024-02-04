@@ -1,10 +1,7 @@
 FROM scottyhardy/docker-wine
 
-ARG USERNAME=anonymous
-ARG PASSWORD=
-ARG GUARDCODE=
-ARG APPID=
-ARG RUNCMD=
+ARG APPID=2394010
+ARG RUNCMD=PalServer.exe EpicApp=PalServer -publicip=${PUBLIC_IP:-127.0.0.1} -publicport=${PUBLIC_PORT:-8211} -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS
 
 # Enable console (headless mode)
 ARG HEADLESS=yes
@@ -32,7 +29,7 @@ WORKDIR /usr/games
 
 # Install the Steam application.
 RUN wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip && unzip steamcmd.zip -d "$PROGRAM_FILES"/Steam && rm steamcmd.zip
-RUN wine "$PROGRAM_FILES"/Steam/steamcmd.exe +login "$USERNAME" "$PASSWORD" "$GUARDCODE" +app_update "$APPID" +quit 2> /dev/null ; exit 0
+RUN wine "$PROGRAM_FILES"/Steam/steamcmd.exe +login anonymous +app_update "$APPID" validate +quit 2> /dev/null ; exit 0
 
 # Install Steam app dependencies.
 RUN ln -s "$PROGRAM_FILES"/Steam /usr/games/Steam && mkdir -p /usr/games/Steam/steamapps/common && \
@@ -53,4 +50,12 @@ RUN sed -i 's/allow_channels=true/allow_channels=false/g' /etc/xrdp/xrdp.ini
 RUN mv /usr/games/.config/user-dirs.conf /etc/xdg/user-dirs.defaults
 
 COPY launch.sh /usr/games/launch.sh
+
+RUN ln -s /usr/games/.wine/drive_c/'Program Files (x86)'/Steam/steamapps/common/PalServer/ /Palworld
+
+RUN chown -R games:games -R /usr/games /Palworld
+
+EXPOSE 8211/udp
+EXPOSE 25575/tcp
+
 ENTRYPOINT /usr/games/launch.sh

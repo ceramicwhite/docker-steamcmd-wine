@@ -21,6 +21,8 @@ BASEDIR=/usr/games
 PROGDIR=$BASEDIR/.wine/drive_c/Program\ Files\ \(x86\)
 GAMEDIR=$PROGDIR/Steam/steamapps/common
 USER=games
+GAME=PalServer
+RUNCMD=PalServer.exe EpicApp=PalServer -publicip=${PUBLIC_IP:-127.0.0.1} -publicport=${PUBLIC_PORT:-8211} -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS
 
 . $BASEDIR/.game-server
 
@@ -32,7 +34,7 @@ export WINEDEBUG=-all
 
 start() {
   log_daemon_msg "Starting game instance" "$DAEMON"
-  start-stop-daemon --start --quiet --background --chuid $USER --exec $DAEMON -- "$GAMEDIR"/*/$RUNCMD
+  start-stop-daemon --start --quiet --background --chuid $USER --exec $DAEMON -- "$GAMEDIR"/"$GAME"/$RUNCMD
   log_end_msg $?
 }
 
